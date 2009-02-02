@@ -21,10 +21,10 @@ spia(de=NULL,all=NULL,organism="hsa",nB=2000,plots=FALSE,verbose=TRUE,beta=NULL)
   The figures are sent to the SPIAPerturbationPlots.pdf file in the current directory.}
    \item{verbose}{If set to TRUE, displays the number of pathways already analyzed.}
    \item{beta}{Weights to be assigned to each type of gene/protein relation type. It should be a named numeric vector of length 23, whose names must be:
-c("activation","compound","binding/association","expression","inhibition","activation_phosphorylation","phosphorylation",
+\code{c("activation","compound","binding/association","expression","inhibition","activation_phosphorylation","phosphorylation",
 "indirect","inhibition_phosphorylation","dephosphorylation_inhibition","dissociation","dephosphorylation","activation_dephosphorylation",
 "state","activation_indirect","inhibition_ubiquination","ubiquination","expression_indirect","indirect_inhibition","repression",
-"binding/association_phosphorylation","dissociation_phosphorylation","indirect_phosphorylation")
+"binding/association_phosphorylation","dissociation_phosphorylation","indirect_phosphorylation")}
 
 If set to null, beta will be by default chosen as: c(1,0,0,1,-1,1,0,0,-1,-1,0,0,1,0,1,-1,0,1,-1,-1,0,0,0). 
 }

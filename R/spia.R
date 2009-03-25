@@ -21,14 +21,14 @@ if(!all(names(beta)%in%rel)){
   .myDataEnv <- new.env(parent=emptyenv()) # not exported
   datload<-paste(organism, "SPIA", sep = "")
 
- if(! paste(datload,".RData",sep="") %in% dir(system.file("data",package="SPIA"))){
-  cat("The KEGG pathway data for your organism is not present in the data folder of the SPIA package!!!")
+ if(! paste(datload,".RData",sep="") %in% dir(system.file("extdata",package="SPIA"))){
+  cat("The KEGG pathway data for your organism is not present in the extdata folder of the SPIA package!!!")
 cat("\n");
-  cat("Trying to download it from http://bioinformaticsprb.med.wayne.edu/SPIA/build012309 ...this may take a few minutes !")
+  cat("Trying to download it from http://bioinformaticsprb.med.wayne.edu/SPIA/build032409 ...this may take a few minutes !")
   getSPIAMatrices(organism=organism)
  }
 
-  data(list=datload, envir=.myDataEnv)
+  load(file=paste(system.file("extdata",package="SPIA"),paste("/",organism, "SPIA", sep = ""),".RData",sep=""), envir=.myDataEnv)
   datpT=.myDataEnv[["path.info"]]
   datp<-list();
   we<-function(x){z=matrix(rep(apply(x,2,sum),dim(x)[1]),dim(x)[1],dim(x)[1],byrow=TRUE); z[z==0]<-1;x/z }

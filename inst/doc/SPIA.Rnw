@@ -153,7 +153,7 @@ Note that the results for these datasets my differ from the ones described in \c
 was updated and b) the default beta values were changed. 
 
 The directed adjacency matrices of the graphs describing the different types of relations between genes/proteins (such as activation or repression)
-used by SPIA are available in the {\tt hsaSPIA} dataset for the homo sapiens organism.
+used by SPIA are available in the {\tt extdata/hsaSPIA.RData} file for the homo sapiens organism.
 The types of relations considered by SPIA and the default weight (beta coefficient) given to them are:
  
 <<eval=TRUE, echo=TRUE>>=
@@ -178,13 +178,13 @@ getSPIAMatrices(organism="mmu")
 
 The execution of the function above will download the latest processed pathway data from \\
 \url{http://bioinformaticsprb.med.wayne.edu/SPIA} for the requested organism and 
-creates a "[org]SPIA.RData" file (in this case org=mmu) in the {\tt data} directory of the SPIA package, and therefore makes is available to the function {\tt spia}.
+creates a "[org]SPIA.RData" file (in this case org=mmu) in the {\tt extdata} directory of the SPIA package, and therefore makes is available to the function {\tt spia}.
 
 The user has the ability to generate his own gene/protein relation data and put it in a list format as the 
 one shown in the hsaSPIA.RData file. 
 In this file, each pathway data is included in a list:
 <<eval=TRUE,echo=TRUE,results=verbatim>>=
-data(hsaSPIA)
+load(file=paste(system.file("extdata",package="SPIA"),paste("/hsa", "SPIA", sep = ""),".RData",sep=""))
 names(path.info[["05210"]])
 path.info[["05210"]][["activation"]][48:60,55:60]
 @

@@ -33,7 +33,6 @@ Microarray Experiments, 2008, Bioinformatics, 2009, 25(1):75-82. \cr
 
 \examples{
 
-#prepare the M.musculus KEGG pathway data for SPIA algorithm. Set demo.on to FALSE to get the complete pathways set. 
 getSPIAMatrices(organism="mmu")
 
 }

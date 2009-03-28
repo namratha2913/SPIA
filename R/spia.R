@@ -24,8 +24,7 @@ if(!all(names(beta)%in%rel)){
  if(! paste(datload,".RData",sep="") %in% dir(system.file("extdata",package="SPIA"))){
   cat("The KEGG pathway data for your organism is not present in the extdata folder of the SPIA package!!!")
 cat("\n");
-  cat("Trying to download it from http://bioinformaticsprb.med.wayne.edu/SPIA/build032409 ...this may take a few minutes !")
-  getSPIAMatrices(organism=organism)
+  cat("Please try to download it from http://bioinformaticsprb.med.wayne.edu/SPIA/build032409 !")
  }
 
   load(file=paste(system.file("extdata",package="SPIA"),paste("/",organism, "SPIA", sep = ""),".RData",sep=""), envir=.myDataEnv)

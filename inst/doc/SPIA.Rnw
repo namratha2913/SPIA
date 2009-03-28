@@ -169,16 +169,8 @@ cbind(beta)
 A 0 value for a given relation type results in discarding those type of relations from the analysis for all pathways. The default values of {\tt beta} can changed by the user at any
 time by setting the {\tt beta} argument of the {\tt spia} function call.    
 
-Other organisms' KEGG pathway data can be made available to the {\tt spia} function by using the function {\tt getSPIAMatrices}. For example, the mus musculus
-pathway data can be made availabe using:
-
-<<eval=TRUE,echo=TRUE,results=verbatim>>=
-getSPIAMatrices(organism="mmu")
-@
-
-The execution of the function above will download the latest processed pathway data from \\
-\url{http://bioinformaticsprb.med.wayne.edu/SPIA} for the requested organism and 
-creates a "[org]SPIA.RData" file (in this case org=mmu) in the {\tt extdata} directory of the SPIA package, and therefore makes is available to the function {\tt spia}.
+Other organisms' KEGG pathway data can be downloaded from \url{http://bioinformaticsprb.med.wayne.edu/SPIA} as a "[org]SPIA.RData" file 
+and copied into the {\tt extdata} directory of the SPIA package, and therefore make it available to the function {\tt spia}.
 
 The user has the ability to generate his own gene/protein relation data and put it in a list format as the 
 one shown in the hsaSPIA.RData file. 

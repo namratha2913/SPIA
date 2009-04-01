@@ -10,6 +10,6 @@ Description: This package implements the Signaling Pathway Impact Analysis (SPIA
 License: GPL (>=2)
 URL: http://bioinformatics.oxfordjournals.org/cgi/reprint/btn577v1
 biocViews: Microarray, GraphsAndNetworks
-Collate: spia.R plotP.R combfunc.R getP2.R getSPIAMatrices.R
+Collate: spia.R plotP.R combfunc.R getP2.R 
 Imports: graphics,RCurl
 LazyLoad: yes

@@ -5,5 +5,5 @@ importFrom(graphics,abline)
 importFrom(graphics,plot)
 importFrom(graphics,points)
 importFrom(RCurl,getURL)
-export("spia","plotP","getSPIAMatrices")
+export("spia","plotP")
 

@@ -176,7 +176,7 @@ The user has the ability to generate his own gene/protein relation data and put 
 one shown in the hsaSPIA.RData file. 
 In this file, each pathway data is included in a list:
 <<eval=TRUE,echo=TRUE,results=verbatim>>=
-load(file=paste(system.file("extdata",package="SPIA"),paste("/hsa", "SPIA", sep = ""),".RData",sep=""))
+load(file=paste(system.file("extdata/hsaSPIA.RData",package="SPIA")))
 names(path.info[["05210"]])
 path.info[["05210"]][["activation"]][48:60,55:60]
 @

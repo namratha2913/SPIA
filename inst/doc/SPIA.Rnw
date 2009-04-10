@@ -34,9 +34,9 @@ $^3$Center for Molecular Medicine and Genetics, Wayne State University \\
 This package implements the Signaling Pathway Impact Analysis (SPIA) algorithm described in \cite{TarcaSPIA:2008}, \cite{Khatri:2007a} and \cite{DraghiciPE:2007}.
 SPIA uses the information from a set of differentially expressed genes and  
 their fold changes, as well as pathways topology in order to assess the significance of the pathways in the condition under the study.
-The current version of SPIA algorithm uses KEGG signaling pathway data. SPIA ready KEGG pathway data for homo sapiens is included in the package, while 
-for other popular organisms it can be automatically downloaded from \\
- \url{http://bioinformaticsprb.med.wayne.edu/SPIA/build012309/} using package functionality.\\
+The current version of SPIA algorithm uses KEGG signaling pathway data. SPIA ready KEGG pathway data for homo sapiens is included in the package and also 
+available at \\
+ \url{http://bioinformaticsprb.med.wayne.edu/SPIA/}.\\
 The pathways included for each organism are those containing only directed relations between genes/proteins and no reactions.\\
 
 \section{Pathway analysis with SPIA package}
@@ -59,7 +59,7 @@ head(top)
 
 For SPIA to work, we need a vector with log2 fold changes between the two groups for all the genes considered to be differentially expressed.
 The names of this vector must be Entrez gene IDs.
-The following lines will add one additional column in the {\tt top} data frame annotating each affymetrix probeset to an Etrez ID. 
+The following lines will add one additional column in the {\tt top} data frame annotating each affymetrix probeset to an Entrez ID. 
 Since there may be several probesets for the same Entrez ID, there are two easy ways to obtain one log fold change per gene. The first option is to use
 the fold change of the most significant probeset for each gene, while the second option is to average the log fold-changes of all probestes of the same gene.
 In the example below we used the former approach. The genes in this example are called differentially expressed provided that their FDR p-value is less than 0.05.

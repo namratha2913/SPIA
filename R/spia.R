@@ -12,7 +12,7 @@ beta=c(1,0,0,1,-1,1,0,0,-1,-1,0,0,1,0,1,-1,0,1,-1,-1,0,0,0)
 names(beta)<-rel
 }else{
 
-if(!all(names(beta)%in%rel)){
+if(!all(names(beta) %in% rel) | length(names(beta))!=length(rel)){
  stop(paste("beta must be a numeric vector of length",length(rel), "with the following names:", "\n", paste(rel,collapse=",")))
  }
 }

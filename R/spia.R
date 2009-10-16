@@ -64,7 +64,7 @@ if(is.null(de)|is.null(all)){stop("de and all arguments can not be NULL!")}
  
  if(length(intersect(names(de),all))!=length(de)){stop("de must be a vector of log2 fold changes. The names of de should be included in the refference array!")}
 
- ph<-smPF<-pb<-IF<-pcomb<-nGP<-pSize<-smPFS<-tA<-NULL;
+ ph<-smPF<-pb<-IF<-pcomb<-nGP<-pSize<-smPFS<-tA<-KEGGLINK<-NULL;
  set.seed(1)
 
  if(plots){ 
@@ -85,10 +85,13 @@ if(is.null(de)|is.null(all)){stop("de and all arguments can not be NULL!")}
   pSize[i]<-length(okg)
 
   if((noMy)>0&(abs(det(M))>1e-7)){
+   gnns<-paste(names(X)[!is.na(X)],collapse="+")
+   KEGGLINK[i]<-paste("http://www.genome.jp/dbget-bin/show_pathway?",organism,names(datp)[i],"+",gnns,sep="")
    X[is.na(X)]<-0.0
    pfs<-solve(M,-X)
    smPF[i]<-sum(abs(pfs),na.rm=TRUE)
    smPFS[i]<-sum(pfs-X)
+   
 
    if(plots){
     #if(interactive()){x11();par(mfrow=c(1,2))}
@@ -131,7 +134,7 @@ if(is.null(de)|is.null(all)){stop("de and all arguments can not be NULL!")}
    }
    pcomb[i]<-combfunc(pb[i],ph[i])
   }else{
-  pb[i]<-ph[i]<-smPFS[i]<-smPF[i]<-pcomb[i]<-IF[i]<-tA[i]<-NA}
+  pb[i]<-ph[i]<-smPFS[i]<-smPF[i]<-pcomb[i]<-IF[i]<-tA[i]<-KEGGLINK[i]<-NA}
 
  if(verbose){
   cat("\n");
@@ -149,10 +152,9 @@ if(is.null(de)|is.null(all)){stop("de and all arguments can not be NULL!")}
  pcombfwer=p.adjust(pcomb,"bonferroni") 
  Name=substr(path.names[names(datp)],1,30)
  Status=ifelse(tA>0,"Activated","Inhibited")
- res<-data.frame(Name,ID=names(datp),pSize,NDE=nGP,tA,pNDE=ph,pPERT=pb,pG=pcomb,pGFdr=pcombFDR,pGFWER=pcombfwer,Status)
+ res<-data.frame(Name,ID=names(datp),pSize,NDE=nGP,tA,pNDE=ph,pPERT=pb,pG=pcomb,pGFdr=pcombFDR,pGFWER=pcombfwer,Status,KEGGLINK,stringsAsFactors=FALSE)
  res<-na.omit(res[order(res$pG),])
  rownames(res)<-NULL;
-
- res
+res
 } 
 

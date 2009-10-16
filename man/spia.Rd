@@ -44,7 +44,9 @@ See cited documents for more details.
  \code{pG} is the p-value obtained by combining \code{pNDE} and \code{pPERT};
   \code{pGFdr} and \code{pGFWER} are the
  False Discovery Rate and respectively Bonferroni adjusted global p-values; and the \code{Status} gives the direction 
- in which the pathway is perturbed (activated or inhibited).
+ in which the pathway is perturbed (activated or inhibited). 
+ \code{KEGGLINK} gives a web link to the KEGG website that displays the pathway image with the differentially expressed genes 
+ highlighted in red.
 }
 
 \references{

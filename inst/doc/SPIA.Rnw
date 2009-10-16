@@ -146,8 +146,17 @@ res<-spia(de=DE_Vessels,all=ALL_Vessels,organism="hsa",nB=500,plots=FALSE,beta=N
 #make the output fit this screen
 res$Name=substr(res$Name,1,10)
 #show first 15 pathways
-res[1:15,]
+res[1:15,-12]
 @
+
+The pathway image as provided by KEGG having the differentially expressed genes highlighted in red can be obtained by pasting
+in a web browser the links available in the KEGGLINK column of the data frame produced by the function spia. For example, 
+
+<<eval=TRUE, echo=TRUE>>=
+res[,"KEGGLINK"][20]
+@
+
+is the link that would display the image of the 20th pathway in the res dataframe above.   
 
 Note that the results for these datasets my differ from the ones described in \cite{TarcaSPIA:2008} since a) the pathways database used herein 
 was updated and b) the default beta values were changed. 

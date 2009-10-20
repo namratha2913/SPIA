@@ -96,8 +96,8 @@ This can be achieved by calling the {\tt spia} function as follows:
 res=spia(de=DE_Colorectal,all=ALL_Colorectal,organism="hsa",nB=2000,plots=FALSE,beta=NULL)
 #make the output fit this screen
 res$Name=substr(res$Name,1,10)
-#show first 15 pathways
-res[1:15,]
+#show first 15 pathways, ommit KEGG links
+res[1:15,-12]
 @
 
 
@@ -145,7 +145,7 @@ data(Vessels)
 res<-spia(de=DE_Vessels,all=ALL_Vessels,organism="hsa",nB=500,plots=FALSE,beta=NULL,verbose=FALSE)
 #make the output fit this screen
 res$Name=substr(res$Name,1,10)
-#show first 15 pathways
+#show first 15 pathways, ommit KEGG links
 res[1:15,-12]
 @
 

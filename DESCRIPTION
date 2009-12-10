@@ -1,6 +1,6 @@
 Package: SPIA
-Version: 1.5.0
-Date: 2009-10-15
+Version: 1.5.1
+Date: 2009-12-10
 Title: Signaling Pathway Impact Analysis (SPIA) using combined evidence of pathway over-representation and unusual signaling perturbations 
 Author: Adi Laurentiu Tarca <tarca@med.wayne.edu>, Purvesh Kathri <purvesh@cs.wayne.edu> and Sorin Draghici <sorin@wayne.edu>
 Depends: R (>= 2.8.0), graphics,RCurl
@@ -11,5 +11,5 @@ License: GPL (>= 2)
 URL: http://bioinformatics.oxfordjournals.org/cgi/reprint/btn577v1
 biocViews: Microarray, GraphsAndNetworks
 Collate: spia.R plotP.R combfunc.R getP2.R 
-Imports: graphics,RCurl
+Imports: graphics
 LazyLoad: yes

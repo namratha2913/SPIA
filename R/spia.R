@@ -1,5 +1,5 @@
 
-spia<-function(de=NULL,all=NULL,organism="hsa",nB=2000,plots=FALSE,verbose=TRUE,beta=NULL){
+spia<-function(de=NULL,all=NULL,organism="hsa",pathids=NULL,nB=2000,plots=FALSE,verbose=TRUE,beta=NULL){
 
 rel<-c("activation","compound","binding/association","expression","inhibition","activation_phosphorylation","phosphorylation",
 "indirect","inhibition_phosphorylation","dephosphorylation_inhibition","dissociation","dephosphorylation","activation_dephosphorylation",
@@ -28,7 +28,17 @@ cat("\n");
  }
 
   load(file=paste(system.file("extdata",package="SPIA"),paste("/",organism, "SPIA", sep = ""),".RData",sep=""), envir=.myDataEnv)
+  
   datpT=.myDataEnv[["path.info"]]
+  
+  if (!is.null(pathids)){
+   if( all(pathids%in%names(datpT))){
+   datpT=datpT[pathids]
+  }else{
+   stop( paste("pathids must be a subset of these pathway ids: ",paste(names(datpT),collapse=" "),sep=" "))
+  }
+  }
+  
   datp<-list();
   we<-function(x){z=matrix(rep(apply(x,2,sum),dim(x)[1]),dim(x)[1],dim(x)[1],byrow=TRUE); z[z==0]<-1;x/z }
   path.names<-NULL

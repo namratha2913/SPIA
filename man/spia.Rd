@@ -5,7 +5,7 @@
 This function implements the SPIA algorithm to analyse KEGG signaling pathways. 
 }
 \usage{
-spia(de=NULL,all=NULL,organism="hsa",nB=2000,plots=FALSE,verbose=TRUE,beta=NULL)
+spia(de=NULL,all=NULL,organism="hsa",pathids=NULL,nB=2000,plots=FALSE,verbose=TRUE,beta=NULL)
 }
 \arguments{
   \item{de}{A named vector containing log2 fold-changes of the differentially expressed genes. The names of this numeric vector
@@ -13,7 +13,8 @@ spia(de=NULL,all=NULL,organism="hsa",nB=2000,plots=FALSE,verbose=TRUE,beta=NULL)
   \item{all}{A vector with the Entrez IDs in the reference set. If the data was obtained from a microarray experiment, 
   this set will contain all genes present on the specific array used for the experiment. This vector should
   contain all names of the \code{de} argument.}
-  \item{organism}{A three letter character designating the organism. See a full list at ftp://ftp.genome.jp/pub/kegg/xml/organisms .}
+  \item{organism}{A three letter character designating the organism. See a full list at ftp://ftp.genome.jp/pub/kegg/xml/organisms.}
+  \item{pathids}{A character vector with the names of the pathways to be analysed. If left NULL all pathways available will be tested.}
   \item{nB}{Number of bootstrap iterations used to compute the P PERT value. Should be larger
   than 100. A recommended value is 2000.}
   \item{plots}{If set to TRUE, the function plots the gene perturbation accumulation vs log2 fold 

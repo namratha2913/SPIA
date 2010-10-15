@@ -1,6 +1,6 @@
 Package: SPIA
 Version: 1.7.0
-Date: 2009-12-10
+Date: 2010-10-15
 Title: Signaling Pathway Impact Analysis (SPIA) using combined evidence of pathway over-representation and unusual signaling perturbations 
 Author: Adi Laurentiu Tarca <atarca@med.wayne.edu>, Purvesh Kathri <purvesh@cs.wayne.edu> and Sorin Draghici <sorin@wayne.edu>
 Depends: R (>= 2.8.0), graphics

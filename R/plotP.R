@@ -32,11 +32,13 @@ msg<-paste("The threshold value should be",x[1,"pGFdr"],"or higher!!!");
 
  abline(v=-log(tr),lwd=1,col="blue",lty=2)
  abline(h=-log(tr),lwd=1,col="blue",lty=2)
- text(-log(ph)[oks],-log(pb)[oks]+0.5,labels=as.vector(x$ID)[oks])
+ text(-log(ph)[oks]+0.70,-log(pb)[oks],labels=as.vector(x$ID)[oks],cex=0.65)
  oks2<-x[,"pGFdr"]<=threshold
  points(-log(ph)[oks2],-log(pb)[oks2],pch=19,col="blue",cex=1.5)
  points(-log(ph)[oks],-log(pb)[oks],pch=19,col="red",cex=1.5)
 
+ text(-log(ph)[oks2]+0.70,-log(pb)[oks2],labels=as.vector(x$ID)[oks2],cex=0.65)
+ 
  if(sum(okx)>0){
   points(-log(ph)[okx]-0.12,-log(pb)[okx],pch="|",col="black",cex=1.5)
  }

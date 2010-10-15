@@ -38,6 +38,8 @@ The current version of SPIA algorithm uses KEGG signaling pathway data. SPIA rea
 available at \\
  \url{http://bioinformaticsprb.med.wayne.edu/SPIA/}.\\
 The pathways included for each organism are those containing only directed relations between genes/proteins and no reactions.\\
+The KEGG data that was preprocessed for SPIA analysis was downloaded from KEGG's ft repository on: 09/22/2010.
+
 
 \section{Pathway analysis with SPIA package}
 
@@ -115,13 +117,15 @@ If the {\tt plots} argument is set to {\tt TRUE} in the function call above, a p
 is produced for each pathway  on which there are differentially expressed genes. These plots are saved in a pdf file in the current directory.
 
 An overall picture of the pathways significance according to both the over-representation evidence and perturbations based evidence 
-can be obtained with the function {\tt plotP} and shown in Figure ~\ref{fig:pPlot}.
+can be obtained with the function {\tt plotP} and shown in Figure ~\ref{fig:pPlot}. The Colorectal cancer pathway is shown in green.
 
 \begin{figure}[htbp]
 \label{fig:pPlot}
   \begin{center}
 <<fig=TRUE>>=
 plotP(res,threshold=0.05)
+points(I(-log(pPERT))~I(-log(pNDE)),data=res[res$ID=="05210",],col="green",pch=19,cex=1.5)
+
 @
 \caption{SPIA evidence plot for the colorectal cancer dataset. Each pathway is represented by one dot. The pathways at the right of the red oblique line are significant after 
 Bonferroni correction of the global p-values, pG. The pathways at the right of the blue oblique line are significant after 
@@ -187,7 +191,7 @@ In this file, each pathway data is included in a list:
 <<eval=TRUE,echo=TRUE,results=verbatim>>=
 load(file=paste(system.file("extdata/hsaSPIA.RData",package="SPIA")))
 names(path.info[["05210"]])
-path.info[["05210"]][["activation"]][48:60,55:60]
+path.info[["05210"]][["activation"]][25:35,30:40]
 @
 In the matrix above, only 0 and 1 values are allowed. 1 means the gene/protein given by the column has a relation of type "activation" with the gene/protein given by the row of the matrix.
 

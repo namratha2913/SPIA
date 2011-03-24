@@ -5,15 +5,15 @@
 \alias{top}
 
 
-\title{Results from a microarray expriment comparing colorectal cancer samples and normal tissue samples.}
+\title{Results from a microarray experiment comparing colorectal cancer samples and normal tissue samples.}
 
 \description{
-  The \code{colorectal} dataset consists: an named vector \code{DE_Colorectal}
-  , which represents the log2 fold changes of the genes chosen as differentially expressed between 
-  colorectal cancer and normal samples based on data from Hong et al, 2007, and 
+  The \code{colorectal} dataset consists: i) an named vector \code{DE_Colorectal}
+  , which represents the $log2$ fold changes of the genes chosen as differentially expressed between 
+  colorectal cancer and normal samples based on data from Hong et al, 2007, using a $FDR=0.1$ and 
  the universe of all Entrez gene IDs available on the array, \code{ALL_Colorectal}. These two vectors were obtained starting from the
  \code{top} dataframe which is the output from the topTable function of the limma package using the RMA processed gene expression data downloaded from 
-GEO (GSE4107).
+GEE (GSE4107).
  The microarray platform used was Affymetrix HGU-133PLUS2.0. 
  }
 

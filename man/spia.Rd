@@ -2,10 +2,10 @@
 \alias{spia}
 \title{Signaling Pathway Impact Analysis (SPIA) based on over-representation and signaling perturbations accumulation}
 \description{
-This function implements the SPIA algorithm to analyse KEGG signaling pathways. 
+This function implements the SPIA algorithm to analyze KEGG signaling pathways. 
 }
 \usage{
-spia(de=NULL,all=NULL,organism="hsa",pathids=NULL,nB=2000,plots=FALSE,verbose=TRUE,beta=NULL)
+spia(de=NULL,all=NULL,organism="hsa",pathids=NULL,nB=2000,plots=FALSE,verbose=TRUE,beta=NULL,combine="fisher")
 }
 \arguments{
   \item{de}{A named vector containing log2 fold-changes of the differentially expressed genes. The names of this numeric vector
@@ -14,7 +14,7 @@ spia(de=NULL,all=NULL,organism="hsa",pathids=NULL,nB=2000,plots=FALSE,verbose=TR
   this set will contain all genes present on the specific array used for the experiment. This vector should
   contain all names of the \code{de} argument.}
   \item{organism}{A three letter character designating the organism. See a full list at ftp://ftp.genome.jp/pub/kegg/xml/organisms.}
-  \item{pathids}{A character vector with the names of the pathways to be analysed. If left NULL all pathways available will be tested.}
+  \item{pathids}{A character vector with the names of the pathways to be analyzed. If left NULL all pathways available will be tested.}
   \item{nB}{Number of bootstrap iterations used to compute the P PERT value. Should be larger
   than 100. A recommended value is 2000.}
   \item{plots}{If set to TRUE, the function plots the gene perturbation accumulation vs log2 fold 
@@ -29,6 +29,7 @@ spia(de=NULL,all=NULL,organism="hsa",pathids=NULL,nB=2000,plots=FALSE,verbose=TR
 
 If set to null, beta will be by default chosen as: c(1,0,0,1,-1,1,0,0,-1,-1,0,0,1,0,1,-1,0,1,-1,-1,0,0,0). 
 }
+\item{combine}{Method used to combine the two types of p-values. If set to \code{"fisher"} it will use Fisher's method. If set to \code{"norminv"} it will use the normal inversion method.}
 
 }
 
@@ -68,7 +69,7 @@ A systems biology approach for pathway level analysis. Genome Research, 17, 2007
 \seealso{\code{\link{plotP}}}
 
 \examples{
-# Example using a colorectal cancer dataset obtained using Affymetrix geneChip technology (GEO GSE4107).
+# Example using a colorectal cancer dataset obtained using Affymetrix geneChip technology (GEE GSE4107).
 # Suppose that proper preprocessing was performed and a two group moderated t-test was applied. The topTable 
 # result from limma package for this data set is called "top".
 #The following lines will annotate each probeset to an entrez ID identifier, will keep the most significant probeset for each 
@@ -80,7 +81,7 @@ A systems biology approach for pathway level analysis. Genome Research, 17, 2007
 #top$ENTREZ<-unlist(as.list(x[top$ID]))
 #top<-top[!is.na(top$ENTREZ),]
 #top<-top[!duplicated(top$ENTREZ),]
-#tg1<-top[top$adj.P.Val<0.05,]
+#tg1<-top[top$adj.P.Val<0.1,]
 #DE_Colorectal=tg1$logFC
 #names(DE_Colorectal)<-as.vector(tg1$ENTREZ)
 #ALL_Colorectal=top$ENTREZ
@@ -88,10 +89,18 @@ A systems biology approach for pathway level analysis. Genome Research, 17, 2007
 data(colorectalcancer)
 
 # pathway analysis using SPIA; # use nB=2000 or higher for more accurate results
-res<-spia(de=DE_Colorectal, all=ALL_Colorectal, organism="hsa",beta=NULL,nB=200,plots=FALSE, verbose=TRUE)
+res<-spia(de=DE_Colorectal, all=ALL_Colorectal, organism="hsa",beta=NULL,nB=2000,plots=FALSE, verbose=TRUE,combine="fisher")
 res
 # Create the evidence plot
 plotP(res)
+
+#now combine pNDE and pPERT using the normal inversion method without running spia function again
+res$pG=combfunc(res$pNDE,res$pPERT,combine="norminv")
+res$pGFdr=p.adjust(res$pG,"fdr")
+res$pGFWER=p.adjust(res$pG,"bonferroni")
+plotP(res,threshold=0.05)
+#highlight the colorectal cancer pathway in green
+points(I(-log(pPERT))~I(-log(pNDE)),data=res[res$ID=="05210",],col="green",pch=19,cex=1.5)
 
 }
 

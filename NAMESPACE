@@ -4,5 +4,5 @@ importFrom(graphics,hist)
 importFrom(graphics,abline)
 importFrom(graphics,plot)
 importFrom(graphics,points)
-export("spia","plotP")
+export("spia","plotP","combfunc")
 

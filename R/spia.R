@@ -1,5 +1,7 @@
 
-spia<-function(de=NULL,all=NULL,organism="hsa",pathids=NULL,nB=2000,plots=FALSE,verbose=TRUE,beta=NULL){
+spia<-function(de=NULL,all=NULL,organism="hsa",pathids=NULL,nB=2000,plots=FALSE,verbose=TRUE,beta=NULL,combine="fisher"){
+
+if(is.null(de)|is.null(all)){stop("de and all arguments can not be NULL!")}
 
 rel<-c("activation","compound","binding/association","expression","inhibition","activation_phosphorylation","phosphorylation",
 "indirect","inhibition_phosphorylation","dephosphorylation_inhibition","dissociation","dephosphorylation","activation_dephosphorylation",
@@ -24,7 +26,7 @@ if(!all(names(beta) %in% rel) | length(names(beta))!=length(rel)){
  if(! paste(datload,".RData",sep="") %in% dir(system.file("extdata",package="SPIA"))){
   cat("The KEGG pathway data for your organism is not present in the extdata folder of the SPIA package!!!")
 cat("\n");
-  cat("Please try to download it from http://bioinformaticsprb.med.wayne.edu/SPIA/build032409 !")
+  cat("Please try to download it from http://bioinformaticsprb.med.wayne.edu/SPIA!")
  }
 
   load(file=paste(system.file("extdata",package="SPIA"),paste("/",organism, "SPIA", sep = ""),".RData",sep=""), envir=.myDataEnv)
@@ -40,17 +42,23 @@ cat("\n");
   }
   
   datp<-list();
-  we<-function(x){z=matrix(rep(apply(x,2,sum),dim(x)[1]),dim(x)[1],dim(x)[1],byrow=TRUE); z[z==0]<-1;x/z }
   path.names<-NULL
   hasR<-NULL
   
   for (jj in 1:length(datpT)){
   sizem<-dim(datpT[[jj]]$activation)[1]
   s<-0;
+  con<-0;
+
   for(bb in 1:length(rel)){
-  s=s+we(datpT[[jj]][[rel[bb]]])*beta[rel[bb]]
+  con=con+datpT[[jj]][[rel[bb]]]*abs(sign(beta[rel[bb]]))
+  s=s+datpT[[jj]][[rel[bb]]]*beta[rel[bb]]
   }
-datp[[jj]]<- s
+  z=matrix(rep(apply(con,2,sum),dim(con)[1]),dim(con)[1],dim(con)[1],byrow=TRUE); 
+  z[z==0]<-1;
+    
+datp[[jj]]<- s/z
+
 path.names<-c(path.names,datpT[[jj]]$title)
 hasR<-c(hasR,datpT[[jj]]$NumberOfReactions>=1) 
   } 
@@ -63,7 +71,6 @@ datp<-datp[!tor]
 path.names<-path.names[!tor]
 
 
-if(is.null(de)|is.null(all)){stop("de and all arguments can not be NULL!")}
 
  IDsNotP<-names(de)[!names(de)%in%all]
  if(length(IDsNotP)/length(de)>0.01){stop("More than 1% of your de genes have IDs are not present in the reference array!. Are you sure you use the right reference array?")}
@@ -74,7 +81,7 @@ if(is.null(de)|is.null(all)){stop("de and all arguments can not be NULL!")}
  
  if(length(intersect(names(de),all))!=length(de)){stop("de must be a vector of log2 fold changes. The names of de should be included in the refference array!")}
 
- ph<-smPF<-pb<-IF<-pcomb<-nGP<-pSize<-smPFS<-tA<-KEGGLINK<-NULL;
+  ph<-pb<-pcomb<-nGP<-pSize<-smPFS<-tA<-tAraw<-KEGGLINK<-NULL;
  set.seed(1)
 
  if(plots){ 
@@ -99,9 +106,9 @@ if(is.null(de)|is.null(all)){stop("de and all arguments can not be NULL!")}
    KEGGLINK[i]<-paste("http://www.genome.jp/dbget-bin/show_pathway?",organism,names(datp)[i],"+",gnns,sep="")
    X[is.na(X)]<-0.0
    pfs<-solve(M,-X)
-   smPF[i]<-sum(abs(pfs),na.rm=TRUE)
    smPFS[i]<-sum(pfs-X)
-   
+   tAraw[i]<-smPFS[i]
+
 
    if(plots){
     #if(interactive()){x11();par(mfrow=c(1,2))}
@@ -117,22 +124,40 @@ if(is.null(de)|is.null(all)){stop("de and all arguments can not be NULL!")}
 
    ph[i]<-phyper(q=noMy-1,m=pSize[i],n=length(all)-pSize[i],k=length(de),lower.tail=FALSE)
    pfstmp<-NULL
+   
+   
    for (k in 1:nB){
     x<-rep(0,length(X));names(x)<-rownames(M);
     x[ok][sample(1:sum(ok),noMy)]<-as.vector(sample(de,noMy))
     tt<-solve(M,-x)
     pfstmp<-c(pfstmp,sum(tt-x))#
-   }
+   }           
     
     mnn<-median(pfstmp)
     pfstmp<-pfstmp-mnn
     ob<-smPFS[i]-mnn
     tA[i]<-ob
+
+    
+    
     if(ob>0){
        pb[i]<-sum(pfstmp>=ob)/length(pfstmp)*2
-    }else{
+    }
+    if(ob<0){
        pb[i]<-sum(pfstmp<=ob)/length(pfstmp)*2
     }
+    
+    if(ob==0){
+     if(all(pfstmp==0)){    #there is nothing to learn from perturbations
+        pb[i]<-NA
+     }else{
+      pb[i]<-1
+     }
+        
+     }
+    
+      
+    
    if(pb[i]<=0){pb[i]<-1/nB/100} 
    if(pb[i]>1){pb[i]<-1} 
    if(plots){
@@ -142,13 +167,13 @@ if(is.null(de)|is.null(all)){stop("de and all arguments can not be NULL!")}
    abline(v=tA[i],col="red",lwd=3)
 
    }
-   pcomb[i]<-combfunc(pb[i],ph[i])
+   pcomb[i]<-combfunc(pb[i],ph[i],combine)
   }else{
-  pb[i]<-ph[i]<-smPFS[i]<-smPF[i]<-pcomb[i]<-IF[i]<-tA[i]<-KEGGLINK[i]<-NA}
+  pb[i]<-ph[i]<-smPFS[i]<-pcomb[i]<-tAraw[i]<-tA[i]<-KEGGLINK[i]<-NA}
 
  if(verbose){
   cat("\n");
-  cat(paste("Done pathway ",i," : ",substr(path.names[names(datp)[i]],1,25),"..",sep=""))
+  cat(paste("Done pathway ",i," : ",substr(path.names[names(datp)[i]],1,30),"..",sep=""))
   }
 
  }#end for each pathway
@@ -160,11 +185,13 @@ if(is.null(de)|is.null(all)){stop("de and all arguments can not be NULL!")}
  
  pcombFDR=p.adjust(pcomb,"fdr");phFdr=p.adjust(ph,"fdr")
  pcombfwer=p.adjust(pcomb,"bonferroni") 
- Name=substr(path.names[names(datp)],1,30)
+ Name=path.names[names(datp)]
  Status=ifelse(tA>0,"Activated","Inhibited")
- res<-data.frame(Name,ID=names(datp),pSize,NDE=nGP,tA,pNDE=ph,pPERT=pb,pG=pcomb,pGFdr=pcombFDR,pGFWER=pcombfwer,Status,KEGGLINK,stringsAsFactors=FALSE)
- res<-na.omit(res[order(res$pG),])
+  res<-data.frame(Name,ID=names(datp),pSize,NDE=nGP,pNDE=ph,tA,pPERT=pb,pG=pcomb,pGFdr=pcombFDR,pGFWER=pcombfwer,Status,KEGGLINK,stringsAsFactors=FALSE)
+ 
+ res<-res[!is.na(res$pNDE),]
+ res<-res[order(res$pG),]
  rownames(res)<-NULL;
 res
-} 
-
+}
+ 

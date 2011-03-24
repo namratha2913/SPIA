@@ -1,7 +1,7 @@
 plotP<-function(x,threshold=0.05){
 
-if(class(x)!="data.frame" | dim(x)[1]<1 | 
-sum(names(x)%in%c("Name","ID","pSize","NDE","tA","pNDE","pPERT","pG","pGFdr","pGFWER","Status"))<11){
+if(class(x)!="data.frame" | dim(x)[1]<1 | !all(c("ID","pNDE","pPERT","pG","pGFdr","pGFWER")%in%names(x)))
+{
  stop("plotP can be applied only to a dataframe produced by spia function!!!") 
 }
 
@@ -13,6 +13,11 @@ msg<-paste("The threshold value should be",x[1,"pGFdr"],"or higher!!!");
 
  pb<-x[,"pPERT"]
  ph<-x[,"pNDE"]
+ 
+ #determine what combine method was used to convert ph and pb into pG
+ combinemethod=ifelse(sum(combfunc(pb,ph,"fisher")==x$pG)>sum(combfunc(pb,ph,"norminv")==x$pG),"fisher","norminv")
+ 
+ 
  okx<-(ph<1e-6)
  oky<-(pb<1e-6)
 
@@ -25,10 +30,27 @@ msg<-paste("The threshold value should be",x[1,"pGFdr"],"or higher!!!");
  tr<-threshold/dim(na.omit(x))[1]
  abline(v=-log(tr),lwd=1,col="red",lty=2)
  abline(h=-log(tr),lwd=1,col="red",lty=2)
- points(c(0,-log(getP2(tr))),c(-log(getP2(tr)),0),col="red",lwd=2,cex=0.7,type="l")
+ 
+ if(combinemethod=="fisher"){
+ points(c(0,-log(getP2(tr,"fisher")^2)),c(-log(getP2(tr,"fisher")^2),0),col="red",lwd=2,cex=0.7,type="l")
+ }else{
+ somep1=exp(seq(from=min(log(ph)),to=max(log(ph)),length=200))
+ somep2=pnorm(qnorm(tr)*sqrt(2)-qnorm(somep1))
+ points(-log(somep1),-log(somep2),col="red",lwd=2,cex=0.7,type="l") 
+ }
+ 
  oks<-x[,"pGFWER"]<=threshold
- tr<-mean(c(max(x[,"pG"][x[,"pGFdr"]<=threshold],na.rm=TRUE),min(x[,"pG"][x[,"pGFdr"]>threshold],na.rm=TRUE)))
- points(c(0,-log(getP2(tr))),c(-log(getP2(tr)),0),col="blue",lwd=2,cex=0.7,type="l")
+ trold=tr
+ tr<-max(x[,"pG"][x[,"pGFdr"]<=threshold])
+ if(tr<=trold){tr=trold*1.03}
+ 
+ if(combinemethod=="fisher"){
+ points(c(0,-log(getP2(tr,"fisher")^2)),c(-log(getP2(tr,"fisher")^2),0),col="blue",lwd=2,cex=0.7,type="l")
+  }else{
+ somep1=exp(seq(from=min(log(ph)),to=max(log(ph)),length=200))
+ somep2=pnorm(qnorm(tr)*sqrt(2)-qnorm(somep1))
+ points(-log(somep1),-log(somep2),col="blue",lwd=2,cex=0.7,type="l") 
+ }
 
  abline(v=-log(tr),lwd=1,col="blue",lty=2)
  abline(h=-log(tr),lwd=1,col="blue",lty=2)

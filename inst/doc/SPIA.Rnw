@@ -34,12 +34,12 @@ $^3$Center for Molecular Medicine and Genetics, Wayne State University \\
 This package implements the Signaling Pathway Impact Analysis (SPIA) algorithm described in \cite{TarcaSPIA:2008}, \cite{Khatri:2007a} and \cite{DraghiciPE:2007}.
 SPIA uses the information from a set of differentially expressed genes and  
 their fold changes, as well as pathways topology in order to assess the significance of the pathways in the condition under the study.
-The current version of SPIA algorithm uses KEGG signaling pathway data. SPIA ready KEGG pathway data for homo sapiens is included in the package and also 
-available at \\
- \url{http://bioinformaticsprb.med.wayne.edu/SPIA/}.\\
-The pathways included for each organism are those containing only directed relations between genes/proteins and no reactions.\\
-The KEGG data that was preprocessed for SPIA analysis was downloaded from KEGG's ft repository on: 09/22/2010.
-
+The current version of SPIA algorithm uses KEGG signaling pathway data for several popular organisms. SPIA ready KEGG pathway 
+data for more organisms is available at \\ \url{http://bioinformaticsprb.med.wayne.edu/SPIA/}.\\
+The pathways included for each organism are those i) containing at least one relation between genes/proteins considered
+by SPIA, and ii) having no reactions.\\
+The KEGG data that was preprocessed for SPIA analysis was downloaded from KEGG's ft repository on: 03/21/2011.
+For a list of changes in SPIA compared to previous versions see the last section in this document.
 
 \section{Pathway analysis with SPIA package}
 
@@ -64,7 +64,7 @@ The names of this vector must be Entrez gene IDs.
 The following lines will add one additional column in the {\tt top} data frame annotating each affymetrix probeset to an Entrez ID. 
 Since there may be several probesets for the same Entrez ID, there are two easy ways to obtain one log fold change per gene. The first option is to use
 the fold change of the most significant probeset for each gene, while the second option is to average the log fold-changes of all probestes of the same gene.
-In the example below we used the former approach. The genes in this example are called differentially expressed provided that their FDR p-value is less than 0.05.
+In the example below we used the former approach. The genes in this example are called differentially expressed provided that their FDR adjusted p-values (q-values) are less than 0.05.
 The following lines start with the {\tt top} data frame and produce two vectors that are required as input by {\tt spia} function:
  
 <<eval=TRUE, echo=TRUE>>=
@@ -73,7 +73,7 @@ x <- hgu133plus2ENTREZID
 top$ENTREZ<-unlist(as.list(x[top$ID]))
 top<-top[!is.na(top$ENTREZ),]
 top<-top[!duplicated(top$ENTREZ),]
-tg1<-top[top$adj.P.Val<0.05,]
+tg1<-top[top$adj.P.Val<0.1,]
 DE_Colorectal=tg1$logFC
 names(DE_Colorectal)<-as.vector(tg1$ENTREZ)
 ALL_Colorectal=top$ENTREZ
@@ -95,11 +95,11 @@ This can be achieved by calling the {\tt spia} function as follows:
 
 <<eval=TRUE, echo=TRUE>>=
 # pathway analysis based on combined evidence; # use nB=2000 or more for more accurate results
-res=spia(de=DE_Colorectal,all=ALL_Colorectal,organism="hsa",nB=2000,plots=FALSE,beta=NULL)
+res=spia(de=DE_Colorectal,all=ALL_Colorectal,organism="hsa",nB=2000,plots=FALSE,beta=NULL,combine="fisher",verbose=FALSE)
 #make the output fit this screen
 res$Name=substr(res$Name,1,10)
-#show first 15 pathways, ommit KEGG links
-res[1:15,-12]
+#show first 15 pathways, omit KEGG links
+res[1:20,-12]
 @
 
 
@@ -128,7 +128,7 @@ points(I(-log(pPERT))~I(-log(pNDE)),data=res[res$ID=="05210",],col="green",pch=1
 
 @
 \caption{SPIA evidence plot for the colorectal cancer dataset. Each pathway is represented by one dot. The pathways at the right of the red oblique line are significant after 
-Bonferroni correction of the global p-values, pG. The pathways at the right of the blue oblique line are significant after 
+Bonferroni correction of the global p-values, pG, obtained by combining the pPERT and pNDE using Fisher's method. The pathways at the right of the blue oblique line are significant after 
 a FDR correction of the global p-values, pG.}
 \end{center}
 \end{figure}
@@ -141,6 +141,38 @@ is described in \cite{TarcaSPIA:2008}.
 In Figure ~\ref{fig:pPlot} each pathway is shown as a bullet point, and those significant at 5\% (set by the {\tt threshold} argument in {\tt plotP}) 
 after Bonferroni correction are shown in red.\\
 
+The default method to combine pPERT and pNDE is Fisher's product method, as was described in \cite{TarcaSPIA:2008}. 
+
+Alternatively, the two types of evidence can be combined using a normal inversion method which gives smaller pG values when pPERT and pNDE are low simultaneously. This is in contrast with Fisher's method that
+may yield small pG values when only one of the two p-values is low. To use the normal inversion method, one can set the argument {\tt combine="norminv"} when the {\tt spia} function is called, or by 
+recomputing pG values starting with a result data frame produced by {\tt spia} function. This latter approach is illustrated below where a call is made 
+to the function {\tt combfunc}. 
+ 
+
+\begin{figure}[htbp]
+\label{fig:pPlot}
+  \begin{center}
+<<fig=TRUE>>=
+res$pG=combfunc(res$pNDE,res$pPERT,combine="norminv")
+res$pGFdr=p.adjust(res$pG,"fdr")
+res$pGFWER=p.adjust(res$pG,"bonferroni")
+
+plotP(res,threshold=0.05)
+points(I(-log(pPERT))~I(-log(pNDE)),data=res[res$ID=="05210",],col="green",pch=19,cex=1.5)
+
+@
+\caption{SPIA evidence plot for the colorectal cancer dataset. Each pathway is represented by one dot. The pathways at the right of the red curve are significant after 
+Bonferroni correction of the global p-values, pG, obtained by combining the pPERT and pNDE using the normal inversion method. The pathways at the right of the blue curve line are significant after 
+a FDR correction of the global p-values, pG.}
+\end{center}
+\end{figure}
+
+
+
+
+
+
+
 SPIA algorithm is illustrated also using the Vessels dataset:
 
 <<eval=TRUE, echo=TRUE>>=
@@ -149,7 +181,7 @@ data(Vessels)
 res<-spia(de=DE_Vessels,all=ALL_Vessels,organism="hsa",nB=500,plots=FALSE,beta=NULL,verbose=FALSE)
 #make the output fit this screen
 res$Name=substr(res$Name,1,10)
-#show first 15 pathways, ommit KEGG links
+#show first 15 pathways, omit KEGG links
 res[1:15,-12]
 @
 
@@ -237,6 +269,27 @@ plotG(path.info[["04012"]][["activation"]])
 
 
 For more details on how to use the main function in this package use "?spia".
+
+\section{Changes in SPIA 2.0 vs 1.9}
+The current version (2.0) contains the following changes compared to the previous version (1.9):
+
+1) The computation of $pPERT$ was improved by replacing to NA the pPERT of a pathway whenever the observed $tA$ value was 0.0 and
+ all the empirical distribution of $tA$ values under the null hypothesis is made only of 0.0 values. In those rare cases, there 
+ is nothing to be learned from the tA values therefore instead of assigning $pPERT$ to 1.0, as in the past version, now we replace 
+ it with NA. Therefore the global $pG$ value will be equal to the over-representation p-value ($pNDE$).
+
+2) The function  {\tt getP2} used in the {\tt plotP} is improved by using an analytical method instead of a numerical method to compute the probability $P1$ and $P2$ (with $P1=P2$) such
+that the combined probability pG is equal to the desired threshold passed as argument to the function {\tt pPlot}. This function is only
+used in creating the SPIA two way evidence plot.
+
+3) The perturbation factor coming from a given upstream gene A used to be divided by the number of all downstream genes of A for each type of relation individually. In the current
+ version, the division is made to the number of all downstream genes of gene A including all types of relations considered (i.e. having non zero {\tt beta}). 
+
+4) An additional meta-analysis method, call normal inversion was added for combining pPERT and pNDE into a global probability pG, in addition to the initial method (Fisher's product). 
+
+5) The date stamp for KEGG's pathway  data is 03/21/2011.
+
+
 
 \bibliography{SPIA} 
 \end{document}

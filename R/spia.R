@@ -3,14 +3,19 @@ spia<-function(de=NULL,all=NULL,organism="hsa",pathids=NULL,nB=2000,plots=FALSE,
 
 if(is.null(de)|is.null(all)){stop("de and all arguments can not be NULL!")}
 
-rel<-c("activation","compound","binding/association","expression","inhibition","activation_phosphorylation","phosphorylation",
-"indirect","inhibition_phosphorylation","dephosphorylation_inhibition","dissociation","dephosphorylation","activation_dephosphorylation",
-"state","activation_indirect","inhibition_ubiquination","ubiquination","expression_indirect","indirect_inhibition","repression",
-"binding/association_phosphorylation","dissociation_phosphorylation","indirect_phosphorylation")
+  rel<-c("activation","compound","binding/association","expression","inhibition",
+"activation_phosphorylation","phosphorylation","inhibition_phosphorylation",
+"inhibition_dephosphorylation","dissociation","dephosphorylation",
+"activation_dephosphorylation","state change","activation_indirect effect",
+"inhibition_ubiquination","ubiquination", "expression_indirect effect",
+"inhibition_indirect effect","repression","dissociation_phosphorylation",
+"indirect effect_phosphorylation","activation_binding/association",
+"indirect effect","activation_compound","activation_ubiquination")
+
 
 
 if(is.null(beta)){
-beta=c(1,0,0,1,-1,1,0,0,-1,-1,0,0,1,0,1,-1,0,1,-1,-1,0,0,0)
+beta=c(1,0,0,1,-1,1,0,-1,-1,0,0,1,0,1,-1,0,1,-1,-1,0,0,1,0,1,1)
 names(beta)<-rel
 }else{
 

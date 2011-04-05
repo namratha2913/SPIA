@@ -202,11 +202,15 @@ used by SPIA are available in the {\tt extdata/hsaSPIA.RData} file for the homo 
 The types of relations considered by SPIA and the default weight (beta coefficient) given to them are:
  
 <<eval=TRUE, echo=TRUE>>=
-rel<-c("activation","compound","binding/association","expression","inhibition","activation_phosphorylation","phosphorylation",
-"indirect","inhibition_phosphorylation","dephosphorylation_inhibition","dissociation","dephosphorylation","activation_dephosphorylation",
-"state","activation_indirect","inhibition_ubiquination","ubiquination","expression_indirect","indirect_inhibition","repression",
-"binding/association_phosphorylation","dissociation_phosphorylation","indirect_phosphorylation")
-beta=c(1,0,0,1,-1,1,0,0,-1,-1,0,0,1,0,1,-1,0,1,-1,-1,0,0,0)
+  rel<-c("activation","compound","binding/association","expression","inhibition",
+"activation_phosphorylation","phosphorylation","inhibition_phosphorylation",
+"inhibition_dephosphorylation","dissociation","dephosphorylation",
+"activation_dephosphorylation","state change","activation_indirect effect",
+"inhibition_ubiquination","ubiquination", "expression_indirect effect",
+"inhibition_indirect effect","repression","dissociation_phosphorylation",
+"indirect effect_phosphorylation","activation_binding/association",
+"indirect effect","activation_compound","activation_ubiquination")
+beta=c(1,0,0,1,-1,1,0,-1,-1,0,0,1,0,1,-1,0,1,-1,-1,0,0,1,0,1,1)
 names(beta)<-rel
 cbind(beta)
 @

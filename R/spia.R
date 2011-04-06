@@ -147,9 +147,13 @@ path.names<-path.names[!tor]
     
     if(ob>0){
        pb[i]<-sum(pfstmp>=ob)/length(pfstmp)*2
+       if(pb[i]<=0){pb[i]<-1/nB/100} 
+       if(pb[i]>1){pb[i]<-1} 
     }
     if(ob<0){
        pb[i]<-sum(pfstmp<=ob)/length(pfstmp)*2
+      if(pb[i]<=0){pb[i]<-1/nB/100} 
+      if(pb[i]>1){pb[i]<-1} 
     }
     
     if(ob==0){
@@ -163,8 +167,7 @@ path.names<-path.names[!tor]
     
       
     
-   if(pb[i]<=0){pb[i]<-1/nB/100} 
-   if(pb[i]>1){pb[i]<-1} 
+
    if(plots){
    plot(density(pfstmp,bw=sd(pfstmp)/4),cex.lab=1.2,col="black",lwd=2,main=paste("pathway ID=",names(datp)[i],"  P PERT=",round(pb[i],5),sep=""),
    xlim=c(min(c(tA[i]-0.5,pfstmp)),max(c(tA[i]+0.5,pfstmp))),cex.main=0.8,xlab="Total Perturbation Accumulation (TA)")

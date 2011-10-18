@@ -31,26 +31,42 @@ $^3$Center for Molecular Medicine and Genetics, Wayne State University \\
 
 \section{Overview}
 
-This package implements the Signaling Pathway Impact Analysis (SPIA) algorithm described in \cite{TarcaSPIA:2008}, \cite{Khatri:2007a} and \cite{DraghiciPE:2007}.
-SPIA uses the information from a set of differentially expressed genes and  
-their fold changes, as well as pathways topology in order to assess the significance of the pathways in the condition under the study.
-The current version of SPIA algorithm uses KEGG signaling pathway data for several popular organisms. SPIA ready KEGG pathway 
-data for more organisms is available at \\ \url{http://bioinformaticsprb.med.wayne.edu/SPIA/}.\\
-The pathways included for each organism are those i) containing at least one relation between genes/proteins considered
-by SPIA, and ii) having no reactions.\\
-The KEGG data that was preprocessed for SPIA analysis was downloaded from KEGG's ft repository on: 03/21/2011.
-For a list of changes in SPIA compared to previous versions see the last section in this document.
+This package implements the Signaling Pathway Impact Analysis 
+(SPIA) algorithm described in \cite{TarcaSPIA:2008}, 
+\cite{Khatri:2007a} and \cite{DraghiciPE:2007}. SPIA uses the 
+information from a set of differentially expressed genes and  
+their fold changes, as well as pathways topology in order to 
+assess the significance of the pathways in the condition under 
+the study. The current version of SPIA algorithm uses KEGG 
+signaling pathway data for several popular organisms. SPIA 
+ready KEGG pathway data for more organisms is available at \\ 
+\url{http://bioinformaticsprb.med.wayne.edu/SPIA/}.\\ The 
+pathways included for each organism are those i) containing at 
+least one relation between genes/proteins considered by SPIA, 
+and ii) having no reactions.\\ The KEGG data that was 
+preprocessed for SPIA analysis was downloaded from KEGG's 
+website on: 10/17/2011. For a list of changes in SPIA compared 
+to previous versions see the last section in this document. 
 
 \section{Pathway analysis with SPIA package}
 
-This document provides basic introduction on how to use the {\tt SPIA} package. For extended description of the methods used by 
-this package please consult these references: \cite{ TarcaSPIA:2008,Khatri:2007a,DraghiciPE:2007}.\\ 
+This document provides basic introduction on how to use the 
+{\tt SPIA} package. For extended description of the methods 
+used by this package please consult these references: \cite{ 
+TarcaSPIA:2008,Khatri:2007a,DraghiciPE:2007}.\\ 
 
-We demonstrate the functionality of this package using a colorectal cancer dataset obtained using Affymetrix GeneChip technology and available 
-through GEO (GSE4107). The experiment contains 10 normal samples and 12 colorectal cancer samples and is described by \cite{Hong:2007}. 
-RMA preprocessing of the raw data was performed using the {\tt affy} package, and a two group moderated t-test was applied using the {\tt limma} package. The data frame obtained as an end result 
-from the function topTable in limma is used as starting point for preparing the input data for SPIA. This data frame called {\tt top} was made available in the 
-{\tt colorectalcancer} dataset included in the SPIA package:
+We demonstrate the functionality of this package using a 
+colorectal cancer dataset obtained using Affymetrix GeneChip 
+technology and available through GEO (GSE4107). The experiment 
+contains 10 normal samples and 12 colorectal cancer samples and 
+is described by \cite{Hong:2007}. RMA preprocessing of the raw 
+data was performed using the {\tt affy} package, and a two 
+group moderated t-test was applied using the {\tt limma} 
+package. The data frame obtained as an end result from the 
+function topTable in limma is used as starting point for 
+preparing the input data for SPIA. This data frame called {\tt 
+top} was made available in the {\tt colorectalcancer} dataset 
+included in the SPIA package: 
  
 <<eval=TRUE, echo=TRUE>>=
 library(SPIA)
@@ -59,13 +75,22 @@ options(digits=3)
 head(top)
 @
 
-For SPIA to work, we need a vector with log2 fold changes between the two groups for all the genes considered to be differentially expressed.
-The names of this vector must be Entrez gene IDs.
-The following lines will add one additional column in the {\tt top} data frame annotating each affymetrix probeset to an Entrez ID. 
-Since there may be several probesets for the same Entrez ID, there are two easy ways to obtain one log fold change per gene. The first option is to use
-the fold change of the most significant probeset for each gene, while the second option is to average the log fold-changes of all probestes of the same gene.
-In the example below we used the former approach. The genes in this example are called differentially expressed provided that their FDR adjusted p-values (q-values) are less than 0.05.
-The following lines start with the {\tt top} data frame and produce two vectors that are required as input by {\tt spia} function:
+For SPIA to work, we need a vector with log2 fold changes 
+between the two groups for all the genes considered to be 
+differentially expressed. The names of this vector must be 
+Entrez gene IDs. The following lines will add one additional 
+column in the {\tt top} data frame annotating each affymetrix 
+probeset to an Entrez ID. Since there may be several probesets 
+for the same Entrez ID, there are two easy ways to obtain one 
+log fold change per gene. The first option is to use the fold 
+change of the most significant probeset for each gene, while 
+the second option is to average the log fold-changes of all 
+probestes of the same gene. In the example below we used the 
+former approach. The genes in this example are called 
+differentially expressed provided that their FDR adjusted 
+p-values (q-values) are less than 0.05. The following lines 
+start with the {\tt top} data frame and produce two vectors 
+that are required as input by {\tt spia} function: 
  
 <<eval=TRUE, echo=TRUE>>=
 library(hgu133plus2.db)
@@ -79,10 +104,12 @@ names(DE_Colorectal)<-as.vector(tg1$ENTREZ)
 ALL_Colorectal=top$ENTREZ
 @
 
-The {\tt DE\_Colorectal} is a vector containing the log2 fold changes of the genes found to be 
-differentially expressed between cancer and normal samples, and {\tt ALL\_Colorectal} is a vector 
-with the Entrez IDs of all genes profiled  on the microarray. The names of the {\tt DE\_Colorectal} are the Entrez gene IDs corresponding 
-to the computed log fold-changes.  
+The {\tt DE\_Colorectal} is a vector containing the log2 fold 
+changes of the genes found to be differentially expressed 
+between cancer and normal samples, and {\tt ALL\_Colorectal} is 
+a vector with the Entrez IDs of all genes profiled  on the 
+microarray. The names of the {\tt DE\_Colorectal} are the 
+Entrez gene IDs corresponding to the computed log fold-changes.  
 
 <<eval=TRUE,echo=TRUE,results=verbatim>>=
 DE_Colorectal[1:10]
@@ -291,7 +318,7 @@ used in creating the SPIA two way evidence plot.
 
 4) An additional meta-analysis method, call normal inversion was added for combining pPERT and pNDE into a global probability pG, in addition to the initial method (Fisher's product). 
 
-5) The date stamp for KEGG's pathway  data is 03/21/2011.
+5) The date stamp for KEGG's pathway  data is 10/17/2011.
 
 
 

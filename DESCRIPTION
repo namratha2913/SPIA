@@ -1,9 +1,9 @@
 Package: SPIA
-Version: 2.5.0
+Version: 2.5.1
 Date: 2011-3-23
 Title: Signaling Pathway Impact Analysis (SPIA) using combined evidence of pathway over-representation and unusual signaling perturbations 
 Author: Adi Laurentiu Tarca <atarca@med.wayne.edu>, Purvesh Kathri <purvesh@cs.wayne.edu> and Sorin Draghici <sorin@wayne.edu>
-Depends: R (>= 2.8.0), graphics
+Depends: R (>= 2.10), graphics
 Suggests: graph, Rgraphviz, KEGGgraph, hgu133plus2.db
 Maintainer: Adi Laurentiu Tarca <atarca@med.wayne.edu>
 Description: This package implements the Signaling Pathway Impact Analysis (SPIA) which uses the information form a list of differentially expressed genes and their log fold changes together with signaling pathways topology, in order to identify the pathways most relevant to the condition under the study. 

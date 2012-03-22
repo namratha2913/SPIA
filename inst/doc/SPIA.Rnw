@@ -38,14 +38,14 @@ information from a set of differentially expressed genes and
 their fold changes, as well as pathways topology in order to 
 assess the significance of the pathways in the condition under 
 the study. The current version of SPIA algorithm uses KEGG 
-signaling pathway data for several popular organisms. SPIA 
+signaling pathway data for hsa and mmu organisms. Older SPIA 
 ready KEGG pathway data for more organisms is available at \\ 
 \url{http://bioinformaticsprb.med.wayne.edu/SPIA/}.\\ The 
 pathways included for each organism are those i) containing at 
 least one relation between genes/proteins considered by SPIA, 
 and ii) having no reactions.\\ The KEGG data that was 
 preprocessed for SPIA analysis was downloaded from KEGG's 
-website on: 10/17/2011. For a list of changes in SPIA compared 
+website on: 03/21/2012. For a list of changes in SPIA compared 
 to previous versions see the last section in this document. 
 
 \section{Pathway analysis with SPIA package}
@@ -320,6 +320,7 @@ used in creating the SPIA two way evidence plot.
 
 5) The date stamp for KEGG's pathway  data is 10/17/2011.
 
+5) The date stamp for KEGG's pathway hsa and mmu data is 03/21/2012.
 
 
 \bibliography{SPIA} 

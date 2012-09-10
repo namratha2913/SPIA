@@ -45,7 +45,7 @@ pathways included for each organism are those i) containing at
 least one relation between genes/proteins considered by SPIA, 
 and ii) having no reactions.\\ The KEGG data that was 
 preprocessed for SPIA analysis was downloaded from KEGG's 
-website on: 03/21/2012. For a list of changes in SPIA compared 
+website on: 09/07/2012. For a list of changes in SPIA compared 
 to previous versions see the last section in this document. 
 
 \section{Pathway analysis with SPIA package}
@@ -318,9 +318,7 @@ used in creating the SPIA two way evidence plot.
 
 4) An additional meta-analysis method, call normal inversion was added for combining pPERT and pNDE into a global probability pG, in addition to the initial method (Fisher's product). 
 
-5) The date stamp for KEGG's pathway  data is 10/17/2011.
-
-5) The date stamp for KEGG's pathway hsa and mmu data is 03/21/2012.
+5) The date stamp for KEGG's pathway  data is 09/07/2012.
 
 
 \bibliography{SPIA} 

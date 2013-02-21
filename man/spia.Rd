@@ -5,7 +5,7 @@
 This function implements the SPIA algorithm to analyze KEGG signaling pathways. 
 }
 \usage{
-spia(de=NULL,all=NULL,organism="hsa",pathids=NULL,nB=2000,plots=FALSE,verbose=TRUE,beta=NULL,combine="fisher")
+spia(de=NULL,all=NULL,organism="hsa",data.dir=NULL,pathids=NULL,nB=2000,plots=FALSE,verbose=TRUE,beta=NULL,combine="fisher")
 }
 \arguments{
   \item{de}{A named vector containing log2 fold-changes of the differentially expressed genes. The names of this numeric vector
@@ -14,6 +14,8 @@ spia(de=NULL,all=NULL,organism="hsa",pathids=NULL,nB=2000,plots=FALSE,verbose=TR
   this set will contain all genes present on the specific array used for the experiment. This vector should
   contain all names of the \code{de} argument.}
   \item{organism}{A three letter character designating the organism. See a full list at ftp://ftp.genome.jp/pub/kegg/xml/organisms.}
+  \item{data.dir}{Location of the "organism"SPIA.RData file containing the pathways data generated with makeSPIAdata.
+  If set to NULL will look for this file in the extdata folder of the SPIA library.}
   \item{pathids}{A character vector with the names of the pathways to be analyzed. If left NULL all pathways available will be tested.}
   \item{nB}{Number of bootstrap iterations used to compute the P PERT value. Should be larger
   than 100. A recommended value is 2000.}
@@ -89,6 +91,7 @@ A systems biology approach for pathway level analysis. Genome Research, 17, 2007
 data(colorectalcancer)
 
 # pathway analysis using SPIA; # use nB=2000 or higher for more accurate results
+#uses older version of KEGG signalimng pathways graphs
 res<-spia(de=DE_Colorectal, all=ALL_Colorectal, organism="hsa",beta=NULL,nB=2000,plots=FALSE, verbose=TRUE,combine="fisher")
 res
 # Create the evidence plot
@@ -101,6 +104,17 @@ res$pGFWER=p.adjust(res$pG,"bonferroni")
 plotP(res,threshold=0.05)
 #highlight the colorectal cancer pathway in green
 points(I(-log(pPERT))~I(-log(pNDE)),data=res[res$ID=="05210",],col="green",pch=19,cex=1.5)
+
+#run SPIA using pathways data generated from (up-to-date) xml files that you can obtain from 
+#KEGG ftp or by downloading  them from each pathway's web page:
+# e.g. go to http://www.genome.jp/kegg/pathway/hsa/hsa04010.html  and click on DOwnload KGML
+#to get the xml file for pathway 4010
+
+makeSPIAdata(kgml.path=system.file("extdata/keggxml/hsa",package="SPIA"),organism="hsa",out.path="./")
+
+res<-spia(de=DE_Colorectal, all=ALL_Colorectal, organism="hsa",data.dir="./")
+res
+
 
 }
 

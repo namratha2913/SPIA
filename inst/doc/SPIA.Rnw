@@ -37,15 +37,19 @@ This package implements the Signaling Pathway Impact Analysis
 information from a set of differentially expressed genes and  
 their fold changes, as well as pathways topology in order to 
 assess the significance of the pathways in the condition under 
-the study. The current version of SPIA algorithm uses KEGG 
-signaling pathway data for hsa and mmu organisms. Older SPIA 
-ready KEGG pathway data for more organisms is available at \\ 
-\url{http://bioinformaticsprb.med.wayne.edu/SPIA/}.\\ The 
-pathways included for each organism are those i) containing at 
+the study. The current version of SPIA algorithm includes out-of-date KEGG 
+signaling pathway data for hsa and mmu organisms for illustration purposes.
+However, the current version 
+of the package includes functionality to generate the required 
+up-to-date processed pathway data from KEGG xml (KGML) files that licensed users can 
+download for the organism of interest from KEGG's ftp site.
+Also, these files can be downloaded individualy using the Dowload KEGML button 
+from each pathway's web page.
+The pathways that will be processed and analyzed for a given organism are those i) containing at 
 least one relation between genes/proteins considered by SPIA, 
-and ii) having no reactions.\\ The KEGG data that was 
-preprocessed for SPIA analysis was downloaded from KEGG's 
-website on: 09/07/2012. For a list of changes in SPIA compared 
+and ii) having no reactions.\\ The outdated KEGG data that was 
+preprocessed for SPIA analysis and is included for the hsa and mmu organisms
+was downloaded from KEGG's website on: 09/07/2012. For a list of changes in SPIA compared 
 to previous versions see the last section in this document. 
 
 \section{Pathway analysis with SPIA package}
@@ -245,9 +249,6 @@ cbind(beta)
 A 0 value for a given relation type results in discarding those type of relations from the analysis for all pathways. The default values of {\tt beta} can changed by the user at any
 time by setting the {\tt beta} argument of the {\tt spia} function call.    
 
-Other organisms' KEGG pathway data can be downloaded from \url{http://bioinformaticsprb.med.wayne.edu/SPIA} as a "[org]SPIA.RData" file 
-and copied into the {\tt extdata} directory of the SPIA package, and therefore make it available to the function {\tt spia}.
-
 The user has the ability to generate his own gene/protein relation data and put it in a list format as the 
 one shown in the hsaSPIA.RData file. 
 In this file, each pathway data is included in a list:
@@ -299,26 +300,36 @@ plotG(path.info[["04012"]][["activation"]])
 \end{figure}
 
 
+\section{Parsing up-to-date KEGG xml files for use with SPIA}
+
+Here we assume that the user obtained the KGML (xml) files for all pathways of interest for a
+ given organism from the KEGG ftp site (or downloaded them one by one from the KEGG web site).
+ As an example we included four such files in the extdata/keggxml/hsa folder 
+ of the SPIA package installation to demontsrae how to parse these files and run SPIA on the 
+ resuting collection of pathways. 
+  
+
+<<eval=TRUE,echo=TRUE,results=verbatim>>=
+mydir=system.file("extdata/keggxml/hsa",package="SPIA")
+dir(mydir)
+makeSPIAdata(kgml.path=mydir,organism="hsa",out.path="./")
+res<-spia(de=DE_Colorectal, all=ALL_Colorectal, organism="hsa",data.dir="./")
+res[,-12]
+@
+
+
 For more details on how to use the main function in this package use "?spia".
 
-\section{Changes in SPIA 2.0 vs 1.9}
-The current version (2.0) contains the following changes compared to the previous version (1.9):
 
-1) The computation of $pPERT$ was improved by replacing to NA the pPERT of a pathway whenever the observed $tA$ value was 0.0 and
- all the empirical distribution of $tA$ values under the null hypothesis is made only of 0.0 values. In those rare cases, there 
- is nothing to be learned from the tA values therefore instead of assigning $pPERT$ to 1.0, as in the past version, now we replace 
- it with NA. Therefore the global $pG$ value will be equal to the over-representation p-value ($pNDE$).
+A commercial version of SPIA called PathwayGuide that includes additional capabilites in terms of 
+visualisation, speed and and user interface is available from \url{http://www.advaitabio.com/}.    
 
-2) The function  {\tt getP2} used in the {\tt plotP} is improved by using an analytical method instead of a numerical method to compute the probability $P1$ and $P2$ (with $P1=P2$) such
-that the combined probability pG is equal to the desired threshold passed as argument to the function {\tt pPlot}. This function is only
-used in creating the SPIA two way evidence plot.
+\section{Changes in SPIA 2.10 vs 2.9}
+The current version (2.10) contains the following changes compared to the previous version (2.9):
 
-3) The perturbation factor coming from a given upstream gene A used to be divided by the number of all downstream genes of A for each type of relation individually. In the current
- version, the division is made to the number of all downstream genes of gene A including all types of relations considered (i.e. having non zero {\tt beta}). 
-
-4) An additional meta-analysis method, call normal inversion was added for combining pPERT and pNDE into a global probability pG, in addition to the initial method (Fisher's product). 
-
-5) The date stamp for KEGG's pathway  data is 09/07/2012.
+A function makeSPIAdata was added that generates xxxSPIA.RData files from KGML (xml) files provided
+by the user. The package will not contain anymore up-to-date KEGG pathway data since the access to 
+the KEGG ftp server requires a license.
 
 
 \bibliography{SPIA} 

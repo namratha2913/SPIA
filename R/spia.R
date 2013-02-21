@@ -1,5 +1,5 @@
 
-spia<-function(de=NULL,all=NULL,organism="hsa",pathids=NULL,nB=2000,plots=FALSE,verbose=TRUE,beta=NULL,combine="fisher"){
+spia<-function(de=NULL,all=NULL,organism="hsa",data.dir=NULL,pathids=NULL,nB=2000,plots=FALSE,verbose=TRUE,beta=NULL,combine="fisher"){
 
 if(is.null(de)|is.null(all)){stop("de and all arguments can not be NULL!")}
 
@@ -26,15 +26,28 @@ if(!all(names(beta) %in% rel) | length(names(beta))!=length(rel)){
 
 
   .myDataEnv <- new.env(parent=emptyenv()) # not exported
-  datload<-paste(organism, "SPIA", sep = "")
 
+ datload<-paste(organism, "SPIA", sep = "")
+
+ if(is.null(data.dir)){
  if(! paste(datload,".RData",sep="") %in% dir(system.file("extdata",package="SPIA"))){
   cat("The KEGG pathway data for your organism is not present in the extdata folder of the SPIA package!!!")
 cat("\n");
-  cat("Please try to download it from http://bioinformaticsprb.med.wayne.edu/SPIA!")
+  cat("Please generate one first using makeSPIAdata and specify its location using data.dir argument or copy it in the extdata folder of the SPIA package!")
+ } else{
+  load(file=paste(system.file("extdata",package="SPIA"),paste("/",organism, "SPIA", sep = ""),".RData",sep=""), envir=.myDataEnv)
+  }
+ }
+ if(!is.null(data.dir)){
+ if (! paste(datload,".RData",sep="") %in% dir(data.dir)) {
+   cat(paste(data.dir, " does not contin a file called ",paste(datload,".RData",sep="")))
+    
+ }else{
+ load(file=paste(data.dir,paste(datload,".RData",sep=""),sep=""), envir=.myDataEnv)
+  }
  }
 
-  load(file=paste(system.file("extdata",package="SPIA"),paste("/",organism, "SPIA", sep = ""),".RData",sep=""), envir=.myDataEnv)
+
   
   datpT=.myDataEnv[["path.info"]]
   

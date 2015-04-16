@@ -1,0 +1,8 @@
+## Edit Adi L. Tarca
+##Namespace file for SPIA package
+importFrom(graphics,hist)
+importFrom(graphics,abline)
+importFrom(graphics,plot)
+importFrom(graphics,points)
+export("spia","plotP","combfunc","makeSPIAdata")
+

@@ -15,6 +15,7 @@ Description: This package implements the Signaling Pathway Impact
         together with signaling pathways topology, in order to identify
         the pathways most relevant to the condition under the study.
 License: file LICENSE
+License_restricts_use: yes
 URL: http://bioinformatics.oxfordjournals.org/cgi/reprint/btn577v1
 Collate: spia.R plotP.R combfunc.R getP2.R makeSPIAdata.R
 Imports: graphics

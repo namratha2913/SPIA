@@ -1,0 +1,341 @@
+% -*- mode: noweb; noweb-default-code-mode: R-mode; -*-
+%\VignetteIndexEntry{SPIA}
+%\VignetteKeywords{Pathway Analysis}
+%\VignettePackage{SPIA}
+\documentclass[11pt]{article}
+
+%\usepackage{amsmath,epsfig,psfig,fullpage} 
+\usepackage{amsmath,epsfig,fullpage} 
+%\usepackage{graphicx,pstricks}
+%\usepackage{ifpdf}
+\usepackage[authoryear,round]{natbib}
+\usepackage{hyperref}
+\usepackage{url}
+
+\parindent 0in
+
+\bibliographystyle{abbrvnat}
+\begin{document}
+
+\title{\bf Bioconductor's SPIA package}
+\author{Adi L. Tarca$^{1,2,3}$, Purvesh Khatri$^{1}$ and Sorin Draghici$^{1}$}
+
+\maketitle
+
+$^1$Department of Computer Science, Wayne State University\\
+$^2$Bioinformatics and Computational Biology Unit of the NIH Perinatology Research Branch\\
+$^3$Center for Molecular Medicine and Genetics, Wayne State University \\
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Overview}
+
+This package implements the Signaling Pathway Impact Analysis 
+(SPIA) algorithm described in \cite{TarcaSPIA:2008}, 
+\cite{Khatri:2007a} and \cite{DraghiciPE:2007}. SPIA uses the 
+information from a set of differentially expressed genes and  
+their fold changes, as well as pathways topology in order to 
+assess the significance of the pathways in the condition under 
+the study. The current version of SPIA algorithm includes out-of-date KEGG 
+signaling pathway data for hsa and mmu organisms for illustration purposes.
+However, the current version 
+of the package includes functionality to generate the required 
+up-to-date processed pathway data from KEGG xml (KGML) files that licensed users can 
+download for the organism of interest from KEGG's ftp site.
+Also, these files can be downloaded individualy using the Dowload KEGML button 
+from each pathway's web page.
+The pathways that will be processed and analyzed for a given organism are those i) containing at 
+least one relation between genes/proteins considered by SPIA, 
+and ii) having no reactions.\\ The outdated KEGG data that was 
+preprocessed for SPIA analysis and is included for the hsa and mmu organisms
+was downloaded from KEGG's website on: 09/07/2012. For a list of changes in SPIA compared 
+to previous versions see the last section in this document. 
+
+\section{Pathway analysis with SPIA package}
+
+This document provides basic introduction on how to use the 
+{\tt SPIA} package. For extended description of the methods 
+used by this package please consult these references: \cite{ 
+TarcaSPIA:2008,Khatri:2007a,DraghiciPE:2007}.\\ 
+
+We demonstrate the functionality of this package using a 
+colorectal cancer dataset obtained using Affymetrix GeneChip 
+technology and available through GEO (GSE4107). The experiment 
+contains 10 normal samples and 12 colorectal cancer samples and 
+is described by \cite{Hong:2007}. RMA preprocessing of the raw 
+data was performed using the {\tt affy} package, and a two 
+group moderated t-test was applied using the {\tt limma} 
+package. The data frame obtained as an end result from the 
+function topTable in limma is used as starting point for 
+preparing the input data for SPIA. This data frame called {\tt 
+top} was made available in the {\tt colorectalcancer} dataset 
+included in the SPIA package: 
+ 
+<<eval=TRUE, echo=TRUE>>=
+library(SPIA)
+data(colorectalcancer)
+options(digits=3)
+head(top)
+@
+
+For SPIA to work, we need a vector with log2 fold changes 
+between the two groups for all the genes considered to be 
+differentially expressed. The names of this vector must be 
+Entrez gene IDs. The following lines will add one additional 
+column in the {\tt top} data frame annotating each affymetrix 
+probeset to an Entrez ID. Since there may be several probesets 
+for the same Entrez ID, there are two easy ways to obtain one 
+log fold change per gene. The first option is to use the fold 
+change of the most significant probeset for each gene, while 
+the second option is to average the log fold-changes of all 
+probestes of the same gene. In the example below we used the 
+former approach. The genes in this example are called 
+differentially expressed provided that their FDR adjusted 
+p-values (q-values) are less than 0.05. The following lines 
+start with the {\tt top} data frame and produce two vectors 
+that are required as input by {\tt spia} function: 
+ 
+<<eval=TRUE, echo=TRUE>>=
+library(hgu133plus2.db)
+x <- hgu133plus2ENTREZID 
+top$ENTREZ<-unlist(as.list(x[top$ID]))
+top<-top[!is.na(top$ENTREZ),]
+top<-top[!duplicated(top$ENTREZ),]
+tg1<-top[top$adj.P.Val<0.1,]
+DE_Colorectal=tg1$logFC
+names(DE_Colorectal)<-as.vector(tg1$ENTREZ)
+ALL_Colorectal=top$ENTREZ
+@
+
+The {\tt DE\_Colorectal} is a vector containing the log2 fold 
+changes of the genes found to be differentially expressed 
+between cancer and normal samples, and {\tt ALL\_Colorectal} is 
+a vector with the Entrez IDs of all genes profiled  on the 
+microarray. The names of the {\tt DE\_Colorectal} are the 
+Entrez gene IDs corresponding to the computed log fold-changes.  
+
+<<eval=TRUE,echo=TRUE,results=verbatim>>=
+DE_Colorectal[1:10]
+ALL_Colorectal[1:10]
+@
+
+
+The SPIA algorithm takes as input the two vectors above and produces a table of pathways ranked from the most to the least significant. 
+This can be achieved by calling the {\tt spia} function as follows:
+
+<<eval=TRUE, echo=TRUE>>=
+# pathway analysis based on combined evidence; # use nB=2000 or more for more accurate results
+res=spia(de=DE_Colorectal,all=ALL_Colorectal,organism="hsa",nB=2000,plots=FALSE,beta=NULL,combine="fisher",verbose=FALSE)
+#make the output fit this screen
+res$Name=substr(res$Name,1,10)
+#show first 15 pathways, omit KEGG links
+res[1:20,-12]
+@
+
+
+\begin{figure}
+\begin{center}
+\includegraphics{PFs}
+\end{center}
+\caption{Perturbations plot for colorectal cancer pathway (KEGG ID hsa:05210) using the {\tt colorectalcancer} dataset. The perturbation of all genes 
+in the pathway are shown as a function of their initial log2 fold changes (left panel).
+Non DE genes are assigned 0 log2 fold-change. The null distribution of the net accumulated perturbations is also given (right panel). The observed net accumulation tA with the real data is shown as a red vertical line.}
+\label{fig:PFs}
+\end{figure}
+
+If the {\tt plots} argument is set to {\tt TRUE} in the function call above, a plot like the one shown in Figure ~\ref{fig:PFs} 
+is produced for each pathway  on which there are differentially expressed genes. These plots are saved in a pdf file in the current directory.
+
+An overall picture of the pathways significance according to both the over-representation evidence and perturbations based evidence 
+can be obtained with the function {\tt plotP} and shown in Figure ~\ref{fig:pPlot}. The Colorectal cancer pathway is shown in green.
+
+\begin{figure}[htbp]
+\label{fig:pPlot}
+  \begin{center}
+<<fig=TRUE>>=
+plotP(res,threshold=0.05)
+points(I(-log(pPERT))~I(-log(pNDE)),data=res[res$ID=="05210",],col="green",pch=19,cex=1.5)
+
+@
+\caption{SPIA evidence plot for the colorectal cancer dataset. Each pathway is represented by one dot. The pathways at the right of the red oblique line are significant after 
+Bonferroni correction of the global p-values, pG, obtained by combining the pPERT and pNDE using Fisher's method. The pathways at the right of the blue oblique line are significant after 
+a FDR correction of the global p-values, pG.}
+\end{center}
+\end{figure}
+
+
+In this plot, the horizontal axis represents the p-value (minus log of) corresponding to the probability of obtaining at least the observed
+number of genes (NDE) on the given pathway just by chance. The vertical axis represents the p-value (minus log of) corresponding to
+the probability of obtaining the observed total accumulation (tA) or more extreme on the given pathway just by chance. The computation of pPERT
+is described in \cite{TarcaSPIA:2008}. 
+In Figure ~\ref{fig:pPlot} each pathway is shown as a bullet point, and those significant at 5\% (set by the {\tt threshold} argument in {\tt plotP}) 
+after Bonferroni correction are shown in red.\\
+
+The default method to combine pPERT and pNDE is Fisher's product method, as was described in \cite{TarcaSPIA:2008}. 
+
+Alternatively, the two types of evidence can be combined using a normal inversion method which gives smaller pG values when pPERT and pNDE are low simultaneously. This is in contrast with Fisher's method that
+may yield small pG values when only one of the two p-values is low. To use the normal inversion method, one can set the argument {\tt combine="norminv"} when the {\tt spia} function is called, or by 
+recomputing pG values starting with a result data frame produced by {\tt spia} function. This latter approach is illustrated below where a call is made 
+to the function {\tt combfunc}. 
+ 
+
+\begin{figure}[htbp]
+\label{fig:pPlot}
+  \begin{center}
+<<fig=TRUE>>=
+res$pG=combfunc(res$pNDE,res$pPERT,combine="norminv")
+res$pGFdr=p.adjust(res$pG,"fdr")
+res$pGFWER=p.adjust(res$pG,"bonferroni")
+
+plotP(res,threshold=0.05)
+points(I(-log(pPERT))~I(-log(pNDE)),data=res[res$ID=="05210",],col="green",pch=19,cex=1.5)
+
+@
+\caption{SPIA evidence plot for the colorectal cancer dataset. Each pathway is represented by one dot. The pathways at the right of the red curve are significant after 
+Bonferroni correction of the global p-values, pG, obtained by combining the pPERT and pNDE using the normal inversion method. The pathways at the right of the blue curve line are significant after 
+a FDR correction of the global p-values, pG.}
+\end{center}
+\end{figure}
+
+
+
+
+
+
+
+SPIA algorithm is illustrated also using the Vessels dataset:
+
+<<eval=TRUE, echo=TRUE>>=
+data(Vessels)
+# pathway analysis based on combined evidence; # use nB=2000 or more for more accurate results
+res<-spia(de=DE_Vessels,all=ALL_Vessels,organism="hsa",nB=500,plots=FALSE,beta=NULL,verbose=FALSE)
+#make the output fit this screen
+res$Name=substr(res$Name,1,10)
+#show first 15 pathways, omit KEGG links
+res[1:15,-12]
+@
+
+The pathway image as provided by KEGG having the differentially expressed genes highlighted in red can be obtained by pasting
+in a web browser the links available in the KEGGLINK column of the data frame produced by the function spia. For example, 
+
+<<eval=TRUE, echo=TRUE>>=
+res[,"KEGGLINK"][20]
+@
+
+is the link that would display the image of the 20th pathway in the res dataframe above.   
+
+Note that the results for these datasets my differ from the ones described in \cite{TarcaSPIA:2008} since a) the pathways database used herein 
+was updated and b) the default beta values were changed. 
+
+The directed adjacency matrices of the graphs describing the different types of relations between genes/proteins (such as activation or repression)
+used by SPIA are available in the {\tt extdata/hsaSPIA.RData} file for the homo sapiens organism.
+The types of relations considered by SPIA and the default weight (beta coefficient) given to them are:
+ 
+<<eval=TRUE, echo=TRUE>>=
+  rel<-c("activation","compound","binding/association","expression","inhibition",
+"activation_phosphorylation","phosphorylation","inhibition_phosphorylation",
+"inhibition_dephosphorylation","dissociation","dephosphorylation",
+"activation_dephosphorylation","state change","activation_indirect effect",
+"inhibition_ubiquination","ubiquination", "expression_indirect effect",
+"inhibition_indirect effect","repression","dissociation_phosphorylation",
+"indirect effect_phosphorylation","activation_binding/association",
+"indirect effect","activation_compound","activation_ubiquination")
+beta=c(1,0,0,1,-1,1,0,-1,-1,0,0,1,0,1,-1,0,1,-1,-1,0,0,1,0,1,1)
+names(beta)<-rel
+cbind(beta)
+@
+
+A 0 value for a given relation type results in discarding those type of relations from the analysis for all pathways. The default values of {\tt beta} can changed by the user at any
+time by setting the {\tt beta} argument of the {\tt spia} function call.    
+
+The user has the ability to generate his own gene/protein relation data and put it in a list format as the 
+one shown in the hsaSPIA.RData file. 
+In this file, each pathway data is included in a list:
+<<eval=TRUE,echo=TRUE,results=verbatim>>=
+load(file=paste(system.file("extdata/hsaSPIA.RData",package="SPIA")))
+names(path.info[["05210"]])
+path.info[["05210"]][["activation"]][25:35,30:40]
+@
+In the matrix above, only 0 and 1 values are allowed. 1 means the gene/protein given by the column has a relation of type "activation" with the gene/protein given by the row of the matrix.
+
+Using other R packages such as {\tt graph} and {\tt Rgraphviz} one can visualize the richness of gene/protein relations of each type in each 
+pathway. 
+Firstly we load the required packages and create a function that can be used to plot as a graph each type of relation of 
+any pathway, as used by SPIA. 
+
+<<eval=TRUE,echo=TRUE,results=verbatim>>=
+library(graph)
+library(Rgraphviz)
+
+plotG<-function(B){
+ nnms<-NULL;colls<-NULL
+ mynodes<-colnames(B)
+ L<-list();
+ n<-dim(B)[1]
+ for (i in 1:n){
+ L[i]<-list(edges=rownames(B)[abs(B[,i])>0])
+ if(sum(B[,i]!=0)>0){
+ nnms<-c(nnms,paste(colnames(B)[i],rownames(B)[B[,i]!=0],sep="~"))
+ }
+ }
+ names(L)<-rownames(B)
+ g<-new("graphNEL",nodes=mynodes,edgeL=L,edgemode="directed")
+ plot(g)
+}
+
+@
+
+
+We plot then the "activation" relations in the ErbB signaling pathway, based on the {\tt hsaSPIA} data.
+
+\begin{figure}[htbp]
+\label{fig:Graph}
+  \begin{center}
+<<fig=TRUE>>=
+plotG(path.info[["04012"]][["activation"]])
+@
+\caption{Display of the "activation" relations in the ErbB signaling pathway, based on the hsaSPIA data.}
+\end{center}
+\end{figure}
+
+
+\section{Parsing up-to-date KEGG xml files for use with SPIA}
+
+Here we assume that the user obtained the KGML (xml) files for all pathways of interest for a
+ given organism from the KEGG ftp site (or downloaded them one by one from the KEGG web site).
+ As an example we included four such files in the extdata/keggxml/hsa folder 
+ of the SPIA package installation to demontsrae how to parse these files and run SPIA on the 
+ resuting collection of pathways. 
+  
+
+<<eval=TRUE,echo=TRUE,results=verbatim>>=
+mydir=system.file("extdata/keggxml/hsa",package="SPIA")
+dir(mydir)
+makeSPIAdata(kgml.path=mydir,organism="hsa",out.path="./")
+res<-spia(de=DE_Colorectal, all=ALL_Colorectal, organism="hsa",data.dir="./")
+res[,-12]
+@
+
+
+For more details on how to use the main function in this package use "?spia".
+
+
+A commercial version of SPIA called PathwayGuide that includes additional capabilites in terms of 
+visualisation, speed and and user interface is available from \url{http://www.advaitabio.com/}.    
+
+\section{Changes in SPIA 2.10 vs 2.9}
+The current version (2.10) contains the following changes compared to the previous version (2.9):
+
+A function makeSPIAdata was added that generates xxxSPIA.RData files from KGML (xml) files provided
+by the user. The package will not contain anymore up-to-date KEGG pathway data since the access to 
+the KEGG ftp server requires a license.
+
+
+\bibliography{SPIA} 
+\end{document}
+
+
+
+
+
